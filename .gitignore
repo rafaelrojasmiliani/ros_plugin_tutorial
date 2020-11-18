@@ -1,0 +1,5 @@
+.*.swp
+*/build
+*/devel
+*/.catkin_workspace
+*/*/CMakeLists.txt
