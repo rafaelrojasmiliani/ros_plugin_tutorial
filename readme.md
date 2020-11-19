@@ -3,5 +3,68 @@
 
 Tutorial to program ROS plugins
 
-## Theory
+## What is a Plugin and what does `pluginlib` do`?
 
+A **Plugin** is an instance of a class that can be loaded at runtime inside a program which were not linked against the library where the plugin was compiled.
+A Plugin class is always derived from a base class that has been defined (and linked if implemented) into the program at compilation time.
+We call the base class of a Plugin the **Plugin base class**.
+`pluginlib` is a C++ library for loading and unloading plugins from within a ROS package.
+With `pluginlib`, one does not have to explicitly link their application against the library containing the implementation of a Plugin class.
+The unique requirement is that the program needs the definition (and minimal implementation if necessary) of the Plugin base class from which the desired Plugin derives.
+
+In other words, `pluginlib` opens a library containing the compiled implementation of the Plugin at runtime without the need of having any prior awareness Plugin implementation or definition provided the program has been compiled and linked with the Plugin base definition and implementation. 
+Plugins are useful for extending/modifying application behavior without needing the application source code.
+
+The `pluginlib` ROS package is a high level wrapper of the `class_loader` ROS package.
+
+## The `class_loader` Package
+
+The `class_loader` package has its main site [here](http://wiki.ros.org/class_loader) and its [source code here](https://github.com/ros/class_loader)
+class_loader is a ROS-independent package that allows one to dynamically load exported C++ classes during runtime from a runtime library (i.e. .so/.dll file) and create objects of those classes. What makes a class loaded through class_loader different from just linking against a runtime library and using classes from it is that your code does not require the definition of the class (i.e. the header file for the class) in your client code. Classes loaded in this fashion are also often called plugins.
+
+At its core `class_loader` is just an implementation of the POCO shared library tool.
+
+## The POCO shared library class
+
+The [POCO C++ libraries](https://pocoproject.org) are a collection of open source C++ class libraries that simplify and accelerate the development of network-centric, portable applications in C++.
+
+For loading (and unloading) shared libraries at runtime, POCO has a low-level `Poco::SharedLibrary` class. 
+Based on it is the `Poco::ClassLoader` class template and supporting framework, allowing dynamic loading and unloading of C++ classes at runtime. 
+
+The `Poco::SharedLibrary` is [defined here](https://github.com/austinsc/Poco/blob/f459e1ddb12354edd5c9908b2d53ec129bdcfa98/Foundation/include/Poco/SharedLibrary.h#L64) and [implemented here](https://github.com/austinsc/Poco/blob/master/Foundation/src/SharedLibrary.cpp).
+It derives from `Poco::SharedLibraryImpl` which implementation depends on the operative system.
+For UNIX system is [defined here](https://github.com/austinsc/Poco/blob/f459e1ddb12354edd5c9908b2d53ec129bdcfa98/Foundation/include/Poco/SharedLibrary_UNIX.h#L50) and [implemented here](https://github.com/austinsc/Poco/blob/master/Foundation/src/SharedLibrary_UNIX.cpp).
+
+In the UNIX implementation, `Poco::SharedLibrary` is a wrapper for the POSIX `dlopen` function.
+
+## The POSIX `dlopen`,  ``dlclose` ``dlerror`and `dlsym` functions
+
+The four functions `dlopen`, `ldsym`, `dlclose`, `dlerror` implement the interface to the dynamic linking loader.
+These function are defined in `dlfcn.h` and require compilation flags as
+```
+gcc -rdynamic -o foo foo.c -ldl 
+```
+
+- **`dlerror`** returns a human readable string describing the most recent error that occurred from `dlopen`, `ldsym` or `dlclose` since the last call to `dlerror`. 
+It returns NULL if no errors have occurred since initialization or since it was last called.
+
+- **`dlopen`** The function `dlopen` loads the dynamic library file named by the null-terminated string filename and returns an opaque "handle" for the dynamic library.
+If filename is NULL, then the returned handle is for the main program. 
+If filename contains a slash ("/"), then it is interpreted as a (relative or absolute) pathname. 
+Otherwise, the dynamic linker searches for the library as follows (see ld.so(8) for further details):
+    - If defined, search on `DT_RPATH`, `DT_RUNPATH`. `DT_RUNPATH` has priority.
+
+    - If defined search on `LD_LIBRARY_PATH`. 
+    - The cache file `/etc/ld.so.cache` (maintained by `ldconfig` (man 8)) is checked to see whether it contains an entry for filename.
+    - The directories `/lib` and `/usr/lib` are searched (in that order).
+If the library has dependencies on other shared libraries, then these are also automatically loaded by the dynamic linker using the same rules.
+(This process may occur recursively, if those libraries in turn have dependencies, and so on.)
+If the executable was linked with the flag `-rdynamic` (or, synonymously, `--export-dynamic`), then the global symbols in the executable will also be used to resolve references in a dynamically loaded library.
+If `dlopen` fails for any reason, it returns NULL.
+
+- **`ldsym`**  takes a "handle" of a dynamic library returned by `dlopen` and the null-terminated symbol name, returning the address where that symbol is loaded into memory. 
+If the symbol is not found returns NULL.
+
+- **`dlclose`** The function `dlclose` decrements the reference count on the dynamic library handle handle. 
+If the reference count drops to zero and no other loaded libraries use symbols in it, then the dynamic library is unloaded.
+Returns 0 on success, and nonzero on error.
