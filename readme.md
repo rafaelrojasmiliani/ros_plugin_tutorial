@@ -3,11 +3,23 @@
 
 Tutorial to program ROS plugins
 
+## Concepts
+
+- **Shared library** is a binary file that is intended to be shared by executable files and further shared libraries. 
+The resources available in shared libraries can be loaded into the program's memory space at load time or runtime, rather than only at compiling time as **Static Libraries**.
+
+- **Plugin** is an instance of a class that can be loaded at runtime inside a program which were not linked against the library where the plugin was compiled. This kind of instances have minimal restrictions
+
+- **Plugin base class** or **interface plugin** is the class from which a given Plugin derives.
+
+
+**NOTE** It is currently not possible to pass constructor arguments to plugins loaded by pluginlib [see here](https://github.com/ros/pluginlib/issues/127#issuecomment-421419008). At most, `pluginlib` uses the default constructor with the default arguments.
+
 ## What is a Plugin and what does `pluginlib` do`?
 
 A **Plugin** is an instance of a class that can be loaded at runtime inside a program which were not linked against the library where the plugin was compiled.
 A Plugin class is always derived from a base class that has been defined (and linked if implemented) into the program at compilation time.
-We call the base class of a Plugin the **Plugin base class**.
+We call the base class of a Plugin the **Plugin base class** or **interface plugin**.
 `pluginlib` is a C++ library for loading and unloading plugins from within a ROS package.
 With `pluginlib`, one does not have to explicitly link their application against the library containing the implementation of a Plugin class.
 The unique requirement is that the program needs the definition (and minimal implementation if necessary) of the Plugin base class from which the desired Plugin derives.
@@ -17,10 +29,16 @@ Plugins are useful for extending/modifying application behavior without needing 
 
 The `pluginlib` ROS package is a high level wrapper of the `class_loader` ROS package.
 
+## Restriction of Plugins classes
+
+- Must have a constructor with no arguments (or default arguments). In order to implment a custom initialization an "`initialize`" function must be implemented.
+
 ## The `class_loader` Package
 
-The `class_loader` package has its main site [here](http://wiki.ros.org/class_loader) and its [source code here](https://github.com/ros/class_loader)
-class_loader is a ROS-independent package that allows one to dynamically load exported C++ classes during runtime from a runtime library (i.e. .so/.dll file) and create objects of those classes. What makes a class loaded through class_loader different from just linking against a runtime library and using classes from it is that your code does not require the definition of the class (i.e. the header file for the class) in your client code. Classes loaded in this fashion are also often called plugins.
+The `class_loader` package has its main site [here](http://wiki.ros.org/class_loader) and its [source code here](https://github.com/ros/class_loader) `class_loader` is a ROS-independent package that allows one to dynamically load instances of C++ classes at runtime from a shared library.
+
+Thanks to `class_loader` your code does not require the definition not the implementation of the class.
+Classes loaded in this fashion are also often called plugins.
 
 At its core `class_loader` is just an implementation of the POCO shared library tool.
 
@@ -36,6 +54,8 @@ It derives from `Poco::SharedLibraryImpl` which implementation depends on the op
 For UNIX system is [defined here](https://github.com/austinsc/Poco/blob/f459e1ddb12354edd5c9908b2d53ec129bdcfa98/Foundation/include/Poco/SharedLibrary_UNIX.h#L50) and [implemented here](https://github.com/austinsc/Poco/blob/master/Foundation/src/SharedLibrary_UNIX.cpp).
 
 In the UNIX implementation, `Poco::SharedLibrary` is a wrapper for the POSIX `dlopen` function.
+
+In the Windows implementation, `Poco::SharedLibrary` is a wrapper for `LoadLibraryExA` [documented here](https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexa) for ANSI or `LoadLibraryExW` [documented here](https://docs.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-loadlibraryexw) for UNICODE.
 
 ## The POSIX `dlopen`,  ``dlclose` ``dlerror`and `dlsym` functions
 
