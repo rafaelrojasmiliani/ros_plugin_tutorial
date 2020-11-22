@@ -4,25 +4,30 @@ cRegularPolygon::cRegularPolygon() {
   area_ = new double(0);
   x_ = new double(0);
   y_ = new double(0);
+  radius_ = new double(0);
 }
 cRegularPolygon::~cRegularPolygon() {
   delete area_;
   delete x_;
   delete y_;
+  delete radius_;
 }
 cRegularPolygon::cRegularPolygon(const cRegularPolygon &that) {
   area_ = new double(0);
   x_ = new double(0);
   y_ = new double(0);
+  radius_ = new double(0);
   *area_ = *that.area_;
   *x_ = *that.x_;
   *y_ = *that.y_;
+  *radius_ = *that.radius_;
 }
 
 cRegularPolygon &cRegularPolygon::operator=(const cRegularPolygon &that) {
   *area_ = *that.area_;
   *x_ = *that.x_;
   *y_ = *that.y_;
+  *radius_ = *that.radius_;
   return *this;
 }
 

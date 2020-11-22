@@ -3,13 +3,13 @@
 
 #include <a_simple_plugin_example/plugin_base_class.h>
 namespace triangle {
-class cPlugingTriangle : regular_polygon::cRegularPolygon {
+class cPluginTriangle : public regular_polygon::cRegularPolygon {
 private:
 public:
-  cPlugingTriangle();
-  cPlugingTriangle(const cPlugingTriangle &that);
-  cPlugingTriangle &operator=(const cPlugingTriangle &that);
-  virtual ~cPlugingTriangle();
+  cPluginTriangle();
+  cPluginTriangle(const cPluginTriangle &that);
+  cPluginTriangle &operator=(const cPluginTriangle &that);
+  virtual ~cPluginTriangle();
 
   void initialize(const double &_x, const double &_y, const double &_r);
   double get_area();

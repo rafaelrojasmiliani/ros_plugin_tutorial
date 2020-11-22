@@ -88,3 +88,4 @@ If the symbol is not found returns NULL.
 - **`dlclose`** The function `dlclose` decrements the reference count on the dynamic library handle handle. 
 If the reference count drops to zero and no other loaded libraries use symbols in it, then the dynamic library is unloaded.
 Returns 0 on success, and nonzero on error.
+

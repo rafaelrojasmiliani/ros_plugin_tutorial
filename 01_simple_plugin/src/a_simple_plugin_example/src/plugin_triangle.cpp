@@ -1,32 +1,33 @@
 #include <a_simple_plugin_example/plugin_triangle.h>
 #include <math.h>
+#include <pluginlib/class_list_macros.h>
 #include <stdlib.h>
 namespace triangle {
 
-cPlugingTriangle::cPlugingTriangle() : regular_polygon::cRegularPolygon() {
+cPluginTriangle::cPluginTriangle() : regular_polygon::cRegularPolygon() {
   dummy_var_ = new double(0);
 }
 
-cPlugingTriangle::~cPlugingTriangle() { delete dummy_var_; }
+cPluginTriangle::~cPluginTriangle() { delete dummy_var_; }
 
-cPlugingTriangle::cPlugingTriangle(const cPlugingTriangle &that)
+cPluginTriangle::cPluginTriangle(const cPluginTriangle &that)
     : regular_polygon::cRegularPolygon(that) {
   dummy_var_ = new double(0);
 }
 
-cPlugingTriangle &cPlugingTriangle::operator=(const cPlugingTriangle &that) {
+cPluginTriangle &cPluginTriangle::operator=(const cPluginTriangle &that) {
   regular_polygon::cRegularPolygon::operator=(that);
   *dummy_var_ = *that.dummy_var_;
   return *this;
 }
 
-double cPlugingTriangle::get_area() {
+double cPluginTriangle::get_area() {
   const double r = *radius_;
   const double A = r * r * sin(2.0 * 3.1415 / 3.0);
   return A;
 }
 
-void cPlugingTriangle::dummy_function(int _A) {
+void cPluginTriangle::dummy_function(int _A) {
   double a = get_area();
   a = _A;
   void *m = (void *)malloc(1);
@@ -34,10 +35,12 @@ void cPlugingTriangle::dummy_function(int _A) {
   free(m);
 }
 
-void cPlugingTriangle::initialize(const double &_x, const double &_y,
+void cPluginTriangle::initialize(const double &_x, const double &_y,
                                   const double &_r) {
   *x_ = _x;
   *y_ = _y;
   *radius_ = _r;
 }
 } // namespace triangle
+PLUGINLIB_EXPORT_CLASS(triangle::cPluginTriangle,
+                       regular_polygon::cRegularPolygon)
