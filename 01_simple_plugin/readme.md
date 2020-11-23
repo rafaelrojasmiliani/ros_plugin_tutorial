@@ -2,7 +2,8 @@
 | package | description |
 | ------- | ----------- |
 | `a_simple_plugin_example` | describes how to create a simple plugin base and a plugin and make it available to other packages |
-| `b_load_plugin` | describes how to load a plugin |
+| `b_load_plugin` | describes how to load a plugin created in another package |
+| `c_plugin_another_package` | describes to create a plugin such that its base plugin was created in another package |
 
 # How to create a simple plugin?
 

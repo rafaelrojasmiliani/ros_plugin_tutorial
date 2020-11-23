@@ -1,0 +1,5 @@
+<library path="lib/libplugin_rectangle">
+ <class type="rectangle::cPluginRectangle" base_class_type="regular_polygon::cRegularPolygon">
+ <description>This is a rectangle plugin.</description>
+ </class>
+</library>

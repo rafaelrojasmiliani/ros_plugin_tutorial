@@ -1,0 +1,5 @@
+<library path="lib/libplugin_triangle">
+ <class type="triangle::cPluginTriangle" base_class_type="regular_polygon::cRegularPolygon">
+ <description>This is a triangle plugin.</description>
+ </class>
+</library>
